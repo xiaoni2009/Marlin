@@ -252,6 +252,15 @@
   #include "feature/easythreed_ui.h"
 #endif
 
+//=======================================强行增加的自动熄屏代码=========================================
+U8GLIB_SSD1306_128X64 u8g2(U8G_I2C_OPT_NONE);
+// Timing variables 时间变量
+#define TIME2SLEEP 30 //熄屏触发时长，单位秒
+uint32_t sleepmillis;
+bool ButtonState;
+uint8_t time2sleep = TIME2SLEEP;
+//=======================================强行增加的自动熄屏代码=========================================
+
 PGMSTR(M112_KILL_STR, "M112 Shutdown");
 
 MarlinState marlin_state = MF_INITIALIZING;
@@ -1638,6 +1647,20 @@ void setup() {
  *    as long as idle() or manage_inactivity() are being called.
  */
 void loop() {
+  //=======================================强行增加的自动熄屏代码=========================================
+  if ((ButtonState != digitalRead(BTN_ENC)) || (ButtonState != digitalRead(BTN_EN1)) || (ButtonState != digitalRead(BTN_EN2)))
+  {
+    sleepmillis = millis();
+    ButtonState = digitalRead(BTN_ENC);
+    u8g2.sleepOff();
+  }
+
+  if ((ButtonState == digitalRead(BTN_ENC)) && (ButtonState == digitalRead(BTN_EN1)) && (ButtonState == digitalRead(BTN_EN2)) && ((millis() - sleepmillis) / 1000 >= time2sleep))
+  {
+    u8g2.sleepOn();
+  }
+  //=======================================强行增加的自动熄屏代码=========================================
+
   do {
     idle();
 

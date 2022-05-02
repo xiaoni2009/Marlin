@@ -1647,26 +1647,28 @@ void setup() {
  *    as long as idle() or manage_inactivity() are being called.
  */
 void loop() {
-  //=======================================强行增加的自动熄屏代码=========================================
-  if ((ButtonState != digitalRead(BTN_ENC)) || (ButtonState != digitalRead(BTN_EN1)) || (ButtonState != digitalRead(BTN_EN2)))
-  {
-    sleepmillis = millis();
-    ButtonState = digitalRead(BTN_ENC);
-    u8g2.sleepOff();
-  }
-
-  if ((ButtonState == digitalRead(BTN_ENC)) && (ButtonState == digitalRead(BTN_EN1)) && (ButtonState == digitalRead(BTN_EN2)) && ((millis() - sleepmillis) / 1000 >= time2sleep))
-  {
-    u8g2.sleepOn();
-  }
-  //=======================================强行增加的自动熄屏代码=========================================
-
   do {
     idle();
 
     #if ENABLED(SDSUPPORT)
       if (card.flag.abort_sd_printing) abortSDPrinting();
       if (marlin_state == MF_SD_COMPLETE) finishSDPrinting();
+    #endif
+
+    #if ENABLED(AUTO_CLOSE_SCREEN)
+      //=======================================强行增加的自动熄屏代码=========================================
+      if ((ButtonState != digitalRead(BTN_ENC)) || (ButtonState != digitalRead(BTN_EN1)) || (ButtonState != digitalRead(BTN_EN2)))
+      {
+        sleepmillis = millis();
+        ButtonState = digitalRead(BTN_ENC);
+        u8g2.sleepOff();
+      }
+
+      if ((ButtonState == digitalRead(BTN_ENC)) && (ButtonState == digitalRead(BTN_EN1)) && (ButtonState == digitalRead(BTN_EN2)) && ((millis() - sleepmillis) / 1000 >= time2sleep))
+      {
+        u8g2.sleepOn();
+      }
+      //=======================================强行增加的自动熄屏代码=========================================
     #endif
 
     queue.advance();
